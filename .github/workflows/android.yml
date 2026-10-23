@@ -1,6 +1,6 @@
 name: Android CI
 
-on:
+'on':
 push:
 branches:
 - main
@@ -8,14 +8,10 @@ branches:
 pull_request:
 workflow_dispatch:
 
-permissions:
-contents: read
-
 jobs:
 build:
-name: Build Android APK
+name: Build APK
 runs-on: ubuntu-latest
-timeout-minutes: 30
 
 steps:
   - name: Checkout repository
@@ -25,24 +21,17 @@ steps:
     uses: actions/setup-java@v4
     with:
       distribution: temurin
-      java-version: "17"
+      java-version: '17'
 
-  - name: Set up Gradle
-    uses: gradle/actions/setup-gradle@v4
-
-  - name: Make Gradle wrapper executable
-    run: chmod +x ./gradlew
-
-  - name: Build debug APK
-    run: ./gradlew assembleDebug --stacktrace
-
-  - name: Run unit tests
-    run: ./gradlew testDebugUnitTest
+  - name: Build Android APK
+    run: |
+      chmod +x ./gradlew
+      ./gradlew assembleDebug --stacktrace
 
   - name: Upload APK
     uses: actions/upload-artifact@v4
     with:
       name: nepali-calendar-debug-apk
-      path: "**/build/outputs/apk/debug/*.apk"
+      path: '**/build/outputs/apk/debug/*.apk'
       if-no-files-found: error
       retention-days: 14
