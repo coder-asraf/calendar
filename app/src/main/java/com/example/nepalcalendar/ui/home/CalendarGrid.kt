@@ -46,6 +46,8 @@ data class CalendarDayModel(
     val isToday: Boolean,
     val isSelected: Boolean,
     val isSaturday: Boolean,
+    val isSunday: Boolean = false,
+    val isWeekendHoliday: Boolean = isSaturday || isSunday,
     val isPublicHoliday: Boolean,
     val hasPersonalEvent: Boolean,
     val festivalNames: List<String>
@@ -118,6 +120,8 @@ fun CalendarGrid(
                 val bsDate = NepaliDate(year, month, dayNum)
                 val adDate = bsDate.toLocalDate()
                 val isSaturday = bsDate.isSaturday
+                val isSunday = bsDate.isSunday
+                val isWeekendHoliday = bsDate.isWeekendHoliday
                 val isToday = (bsDate == todayBs)
                 val isSelected = (bsDate == selectedDate)
                 val fests = festivalsForMonth.filter { it.bsDay == dayNum }
@@ -131,6 +135,8 @@ fun CalendarGrid(
                     isToday = isToday,
                     isSelected = isSelected,
                     isSaturday = isSaturday,
+                    isSunday = isSunday,
+                    isWeekendHoliday = isWeekendHoliday,
                     isPublicHoliday = hasHoliday,
                     hasPersonalEvent = hasEvent,
                     festivalNames = fests.map { if (useNepaliLanguage) it.nameNp else it.nameEn }
@@ -144,6 +150,8 @@ fun CalendarGrid(
                     isToday = false,
                     isSelected = false,
                     isSaturday = false,
+                    isSunday = false,
+                    isWeekendHoliday = false,
                     isPublicHoliday = false,
                     hasPersonalEvent = false,
                     festivalNames = emptyList()
@@ -177,20 +185,22 @@ fun CalendarGrid(
             .padding(12.dp)
             .testTag("calendar_grid")
     ) {
-        // Weekday header row
+        // Weekday header row: highlight both Saturday and Sunday when weekend holiday highlight is on
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             weekdayHeaders.forEachIndexed { idx, header ->
                 val isSatHeader = if (firstDayOfWeek == 1) idx == 6 else idx == 5
+                val isSunHeader = if (firstDayOfWeek == 1) idx == 0 else idx == 6
+                val isWeekendHeader = isSatHeader || isSunHeader
                 Text(
                     text = header,
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     fontSize = 13.sp,
-                    color = if (isSatHeader && highlightSaturday) HolidayRed else MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (isWeekendHeader && highlightSaturday) HolidayRed else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -248,7 +258,7 @@ private fun CalendarDayCell(
         cellData.adDate?.dayOfMonth?.toString() ?: ""
     }
 
-    val isHighlightRed = (cellData.isSaturday && highlightSaturday) || cellData.isPublicHoliday
+    val isHighlightRed = (cellData.isWeekendHoliday && highlightSaturday) || cellData.isPublicHoliday
 
     val cellBackground = when {
         cellData.isSelected -> MaterialTheme.colorScheme.primary

@@ -80,6 +80,55 @@ data class NepaliDate(
         get() = dayOfWeek == DayOfWeek.SATURDAY
 
     /**
+     * Returns true if this day falls on Sunday (weekly holiday in Nepal).
+     */
+    val isSunday: Boolean
+        get() = dayOfWeek == DayOfWeek.SUNDAY
+
+    /**
+     * Returns true if this day falls on Saturday or Sunday (Nepal 2-day weekly public holiday schedule).
+     */
+    val isWeekendHoliday: Boolean
+        get() = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
+
+    /**
+     * Nepali Ritu (ऋतु - Season) in Nepali
+     */
+    val seasonNp: String
+        get() = when (month) {
+            1, 2 -> "वसन्त ऋतु (Spring)"
+            3, 4 -> "ग्रीष्म ऋतु (Summer)"
+            5, 6 -> "वर्षा ऋतु (Monsoon)"
+            7, 8 -> "शरद ऋतु (Autumn)"
+            9, 10 -> "हेमन्त ऋतु (Pre-winter)"
+            11, 12 -> "शिशिर ऋतु (Winter)"
+            else -> ""
+        }
+
+    /**
+     * Nepali Ritu (Season) in English
+     */
+    val seasonEn: String
+        get() = when (month) {
+            1, 2 -> "Spring (Basanta Ritu)"
+            3, 4 -> "Summer (Grishma Ritu)"
+            5, 6 -> "Monsoon (Barsha Ritu)"
+            7, 8 -> "Autumn (Sharad Ritu)"
+            9, 10 -> "Pre-winter (Hemanta Ritu)"
+            11, 12 -> "Winter (Shishir Ritu)"
+            else -> ""
+        }
+
+    val dayOfYear: Int
+        get() = BsCalendarEngine.getDayOfYear(this)
+
+    val totalDaysInYear: Int
+        get() = BsCalendarEngine.getDaysInYear(year)
+
+    val daysRemainingInYear: Int
+        get() = totalDaysInYear - dayOfYear
+
+    /**
      * Formats this BS date according to user language and numeral preferences.
      * Example: "२०८३ कार्तिक ६, शुक्रबार" or "Kartik 6, 2083 (Friday)"
      */

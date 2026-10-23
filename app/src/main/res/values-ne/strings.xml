@@ -31,7 +31,11 @@
     <string name="calc_countdown">बाँकी दिनहरू</string>
     <string name="calc_age">उमेर क्यालकुलेटर</string>
     <string name="calc_add_subtract">दिन थप / घटाउ</string>
+    <string name="calc_working_days">कार्यदिन गणना</string>
     <string name="calculate">गणना गर्नुहोस्</string>
+    <string name="date_range_converter">अवधि रूपान्तरण</string>
+    <string name="single_converter">एकल मिति</string>
+    <string name="range_converter">अवधि (दायरा)</string>
 
     <string name="festivals_and_holidays">चाडपर्व तथा बिदाहरू</string>
     <string name="public_holidays_only">सार्वजनिक बिदा मात्र</string>
@@ -52,7 +56,7 @@
     <string name="first_day_of_week">हप्ताको पहिलो दिन</string>
     <string name="sunday">आइतबार</string>
     <string name="monday">सोमबार</string>
-    <string name="highlight_saturday">शनिबार बिदा रङ देखाउने</string>
+    <string name="highlight_saturday">साप्ताहिक बिदा (शनिबार र आइतबार) रङ देखाउने</string>
     <string name="show_festivals">क्यालेन्डरमा चाडपर्व चिन्ह देखाउने</string>
     <string name="about_calendar">विक्रम संवत् इन्जिन बारे</string>
     <string name="supported_range_desc">सटीक दायरा: १९७५ - २१०० वि.सं. (१२६ वर्ष अफलाइन)</string>

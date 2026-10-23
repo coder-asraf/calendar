@@ -43,7 +43,8 @@ enum class CalculatorMode {
     DAYS_BETWEEN,
     COUNTDOWN,
     AGE,
-    ADD_SUBTRACT
+    ADD_SUBTRACT,
+    WORKING_DAYS
 }
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -236,6 +237,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val d = _bsInputDay.value.coerceIn(1, maxDays)
                 val bsDate = NepaliDate(y, m, d)
                 val adDate = BsCalendarEngine.bsToAd(bsDate)
+                val fests = FestivalRepository.getFestivalsForDate(bsDate)
+                val isHoliday = bsDate.isWeekendHoliday || fests.any { it.isPublicHoliday }
 
                 val res = DateConversionResult(
                     bsDate = bsDate,
@@ -244,9 +247,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     dayOfWeekNameNp = bsDate.dayOfWeekNameNp,
                     dayOfWeekNameEn = bsDate.dayOfWeekNameEn,
                     isSaturday = bsDate.isSaturday,
+                    isSunday = bsDate.isSunday,
+                    isWeekendHoliday = bsDate.isWeekendHoliday,
                     formattedBsNp = bsDate.formatDisplay(useNepaliLanguage = true, useNepaliNumerals = true),
                     formattedBsEn = bsDate.formatDisplay(useNepaliLanguage = false, useNepaliNumerals = false),
-                    formattedAd = adDate.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"))
+                    formattedAd = adDate.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy")),
+                    seasonNp = bsDate.seasonNp,
+                    seasonEn = bsDate.seasonEn,
+                    dayOfYearBs = bsDate.dayOfYear,
+                    totalDaysInBsYear = bsDate.totalDaysInYear,
+                    dayOfYearAd = adDate.dayOfYear,
+                    festivalNames = fests.map { it.nameNp },
+                    isPublicHoliday = isHoliday
                 )
                 _conversionResult.value = res
                 addToHistory(res)
@@ -256,6 +268,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val d = _adInputDay.value
                 val adDate = LocalDate.of(y, m, d)
                 val bsDate = BsCalendarEngine.adToBs(adDate)
+                val fests = FestivalRepository.getFestivalsForDate(bsDate)
+                val isHoliday = bsDate.isWeekendHoliday || fests.any { it.isPublicHoliday }
 
                 val res = DateConversionResult(
                     bsDate = bsDate,
@@ -264,9 +278,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     dayOfWeekNameNp = bsDate.dayOfWeekNameNp,
                     dayOfWeekNameEn = bsDate.dayOfWeekNameEn,
                     isSaturday = bsDate.isSaturday,
+                    isSunday = bsDate.isSunday,
+                    isWeekendHoliday = bsDate.isWeekendHoliday,
                     formattedBsNp = bsDate.formatDisplay(useNepaliLanguage = true, useNepaliNumerals = true),
                     formattedBsEn = bsDate.formatDisplay(useNepaliLanguage = false, useNepaliNumerals = false),
-                    formattedAd = adDate.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"))
+                    formattedAd = adDate.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy")),
+                    seasonNp = bsDate.seasonNp,
+                    seasonEn = bsDate.seasonEn,
+                    dayOfYearBs = bsDate.dayOfYear,
+                    totalDaysInBsYear = bsDate.totalDaysInYear,
+                    dayOfYearAd = adDate.dayOfYear,
+                    festivalNames = fests.map { it.nameNp },
+                    isPublicHoliday = isHoliday
                 )
                 _conversionResult.value = res
                 addToHistory(res)
@@ -281,17 +304,55 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             isBsToAd = res.isBsToAd,
             sourceFormatted = if (res.isBsToAd) res.formattedBsNp else res.formattedAd,
             targetFormatted = if (res.isBsToAd) res.formattedAd else res.formattedBsNp,
-            weekday = res.dayOfWeekNameNp
+            weekday = res.dayOfWeekNameNp,
+            bsYear = res.bsDate.year,
+            bsMonth = res.bsDate.month,
+            bsDay = res.bsDate.day,
+            adYear = res.adDate.year,
+            adMonth = res.adDate.monthValue,
+            adDay = res.adDate.dayOfMonth
         )
         val current = _recentConversions.value.toMutableList()
-        // Deduplicate and keep top 10
+        // Deduplicate and keep top 15
         current.removeAll { it.sourceFormatted == item.sourceFormatted }
         current.add(0, item)
-        if (current.size > 10) {
-            _recentConversions.value = current.take(10)
+        if (current.size > 15) {
+            _recentConversions.value = current.take(15)
         } else {
             _recentConversions.value = current
         }
+    }
+
+    fun clearConversionHistory() {
+        _recentConversions.value = emptyList()
+    }
+
+    fun removeConversionHistoryItem(item: ConversionHistoryItem) {
+        _recentConversions.value = _recentConversions.value.filter { it.id != item.id }
+    }
+
+    fun loadHistoryItem(item: ConversionHistoryItem) {
+        if (item.isBsToAd && item.bsYear > 0) {
+            setConversionDirection(ConversionDirection.BS_TO_AD)
+            setBsInput(item.bsYear, item.bsMonth, item.bsDay)
+        } else if (!item.isBsToAd && item.adYear > 0) {
+            setConversionDirection(ConversionDirection.AD_TO_BS)
+            setAdInput(item.adYear, item.adMonth, item.adDay)
+        }
+    }
+
+    fun setDateFromPreset(bsDate: NepaliDate) {
+        if (_conversionDirection.value == ConversionDirection.BS_TO_AD) {
+            setBsInput(bsDate.year, bsDate.month, bsDate.day)
+        } else {
+            val ad = bsDate.toLocalDate()
+            setAdInput(ad.year, ad.monthValue, ad.dayOfMonth)
+        }
+    }
+
+    fun jumpToDateInCalendar(bsDate: NepaliDate) {
+        selectDate(bsDate)
+        _currentTab.value = AppTab.CALENDAR
     }
 
     // Events management

@@ -419,10 +419,10 @@ fun SettingsScreen(
             }
         }
 
-        // 6. Saturday Holiday Highlight Toggle
+        // 6. 2-Day Weekend Holiday (Saturday & Sunday) Highlight Toggle
         item {
             SettingSectionCard(
-                title = if (isNepali) "शनिबार साप्ताहिक बिदा" else "Saturday Weekly Holiday",
+                title = if (isNepali) "साप्ताहिक सार्वजनिक बिदा (शनिबार र आइतबार)" else "Weekend Holidays (Saturday & Sunday)",
                 icon = Icons.Default.Palette
             ) {
                 Row(
@@ -432,7 +432,7 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = if (isNepali) "नेपालको साप्ताहिक बिदा अनुसार शनिबार रातो रङमा देखाउने।" else "Highlight Saturdays in red per Nepal holiday convention.",
+                            text = if (isNepali) "नेपालको २ दिने साप्ताहिक बिदा नियम अनुसार शनिबार र आइतबार दुवै दिन रातो रङमा देखाउने।" else "Highlight both Saturday and Sunday in red per Nepal 2-day weekly public holiday schedule.",
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -580,8 +580,12 @@ private fun NotificationMockPreview(
     }
     val festivalText = if (festivals.isNotEmpty()) {
         festivals.joinToString(", ") { if (isNepali) it.nameNp else it.nameEn }
-    } else if (viewModel.todayBs.isSaturday && userPreferences.highlightSaturday) {
-        if (isNepali) "शनिबार (साप्ताहिक बिदा)" else "Saturday (Weekly Holiday)"
+    } else if (viewModel.todayBs.isWeekendHoliday && userPreferences.highlightSaturday) {
+        if (viewModel.todayBs.isSaturday) {
+            if (isNepali) "शनिबार (साप्ताहिक बिदा)" else "Saturday (Weekly Holiday)"
+        } else {
+            if (isNepali) "आइतबार (साप्ताहिक बिदा)" else "Sunday (Weekly Holiday)"
+        }
     } else ""
 
     Card(

@@ -3,6 +3,6 @@
     <item
         android:width="66dp"
         android:height="66dp"
-        android:drawable="@drawable/nepal_calendar_icon_1792755811232"
+        android:drawable="@drawable/nepal_cal_icon_1792761830890"
         android:gravity="center" />
 </layer-list>

@@ -75,11 +75,21 @@ class BsCalendarEngineTest {
         assertEquals("Friday", todayBs.dayOfWeekNameEn)
         assertFalse(todayBs.isSaturday)
 
-        // Tomorrow is Saturday (Nepal weekly holiday)
+        // Tomorrow is Saturday (Nepal weekly holiday 1)
         val tomorrowBs = todayBs.plusDays(1)
         assertEquals(DayOfWeek.SATURDAY, tomorrowBs.dayOfWeek)
         assertEquals("शनिबार", tomorrowBs.dayOfWeekNameNp)
         assertTrue(tomorrowBs.isSaturday)
+        assertFalse(tomorrowBs.isSunday)
+        assertTrue(tomorrowBs.isWeekendHoliday)
+
+        // Day after tomorrow is Sunday (Nepal weekly holiday 2)
+        val sundayBs = todayBs.plusDays(2)
+        assertEquals(DayOfWeek.SUNDAY, sundayBs.dayOfWeek)
+        assertEquals("आइतबार", sundayBs.dayOfWeekNameNp)
+        assertFalse(sundayBs.isSaturday)
+        assertTrue(sundayBs.isSunday)
+        assertTrue(sundayBs.isWeekendHoliday)
     }
 
     // 4. Month and Year Boundaries

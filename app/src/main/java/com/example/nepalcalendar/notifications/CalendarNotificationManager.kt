@@ -68,8 +68,12 @@ object CalendarNotificationManager {
         val festivals = FestivalRepository.getFestivalsForDate(todayBs)
         val holidayText = if (festivals.isNotEmpty()) {
             festivals.joinToString(", ") { if (useNepaliLang) it.nameNp else it.nameEn }
-        } else if (todayBs.isSaturday && userPreferences.highlightSaturday) {
-            if (useNepaliLang) "शनिबार (साप्ताहिक बिदा)" else "Saturday (Weekly Holiday)"
+        } else if (todayBs.isWeekendHoliday && userPreferences.highlightSaturday) {
+            if (todayBs.isSaturday) {
+                if (useNepaliLang) "शनिबार (साप्ताहिक बिदा)" else "Saturday (Weekly Holiday)"
+            } else {
+                if (useNepaliLang) "आइतबार (साप्ताहिक बिदा)" else "Sunday (Weekly Holiday)"
+            }
         } else ""
 
         val contentTextBuilder = StringBuilder()

@@ -88,7 +88,12 @@ fun CalculatorScreen(
                     Tab(
                         selected = calculatorMode == CalculatorMode.ADD_SUBTRACT,
                         onClick = { viewModel.setCalculatorMode(CalculatorMode.ADD_SUBTRACT) },
-                        text = { Text(if (useNepaliLanguage) "जोड/घटाउ" else "+ / - Days", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
+                        text = { Text(if (useNepaliLanguage) "जोड/घटाउ" else "+ / -", fontSize = 11.sp, fontWeight = FontWeight.Bold) }
+                    )
+                    Tab(
+                        selected = calculatorMode == CalculatorMode.WORKING_DAYS,
+                        onClick = { viewModel.setCalculatorMode(CalculatorMode.WORKING_DAYS) },
+                        text = { Text(if (useNepaliLanguage) "कार्यदिन" else "Work Days", fontSize = 11.sp, fontWeight = FontWeight.Bold) }
                     )
                 }
             }
@@ -101,6 +106,7 @@ fun CalculatorScreen(
                 CalculatorMode.AGE -> AgeCalculatorTool(todayBs, useNepaliLanguage, useNepaliNumerals)
                 CalculatorMode.COUNTDOWN -> CountdownTool(todayBs, useNepaliLanguage, useNepaliNumerals)
                 CalculatorMode.ADD_SUBTRACT -> AddSubtractDaysTool(todayBs, useNepaliLanguage, useNepaliNumerals)
+                CalculatorMode.WORKING_DAYS -> WorkingDaysTool(todayBs, useNepaliLanguage, useNepaliNumerals)
             }
         }
 
@@ -546,5 +552,156 @@ private fun DateInputRow(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.weight(1f)
         )
+    }
+}
+
+@Composable
+private fun WorkingDaysTool(
+    todayBs: NepaliDate,
+    useNepaliLanguage: Boolean,
+    useNepaliNumerals: Boolean
+) {
+    var y1 by remember { mutableIntStateOf(todayBs.year) }
+    var m1 by remember { mutableIntStateOf(todayBs.month) }
+    var d1 by remember { mutableIntStateOf(todayBs.day) }
+
+    var y2 by remember { mutableIntStateOf(todayBs.year) }
+    var m2 by remember { mutableIntStateOf((todayBs.month % 12) + 1) }
+    var d2 by remember { mutableIntStateOf(1) }
+
+    var result by remember { mutableStateOf<BsCalendarEngine.WorkingDaysResult?>(null) }
+
+    Card(
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = CardDefaults.outlinedCardBorder().copy(
+            brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                text = if (useNepaliLanguage) "नेपाल कार्यदिन गणना (Working Days Calculator)" else "Nepal Working Days Calculator",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = if (useNepaliLanguage)
+                    "नेपालको २ दिने साप्ताहिक सार्वजनिक बिदा (शनिबार र आइतबार) तथा राष्ट्रिय बिदाहरू कटाएर कुल कार्यदिन गणना गर्दछ।"
+                else
+                    "Calculates net office working days excluding Nepal's 2-day weekly holidays (Saturday & Sunday) and gazetted public holidays.",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Text(if (useNepaliLanguage) "सुरुवात मिति (Start Date):" else "Start Date (BS):", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            DateInputRow(
+                year = y1, month = m1, day = d1,
+                onDateChanged = { y, m, d -> y1 = y; m1 = m; d1 = d },
+                useNepaliNumerals = useNepaliNumerals
+            )
+
+            Text(if (useNepaliLanguage) "अन्तिम मिति (End Date):" else "End Date (BS):", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            DateInputRow(
+                year = y2, month = m2, day = d2,
+                onDateChanged = { y, m, d -> y2 = y; m2 = m; d2 = d },
+                useNepaliNumerals = useNepaliNumerals
+            )
+
+            Button(
+                onClick = {
+                    val dt1 = NepaliDate(y1, m1, d1)
+                    val dt2 = NepaliDate(y2, m2, d2)
+                    val fests = com.example.nepalcalendar.data.repository.FestivalRepository.getAllFestivalsForYear(y1)
+                        .filter { it.isPublicHoliday }
+                        .map { Pair(it.bsMonth, it.bsDay) }
+                        .toSet()
+                    result = BsCalendarEngine.calculateWorkingDays(dt1, dt2, fests)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(if (useNepaliLanguage) "कार्यदिन गणना गर्नुहोस् (Calculate)" else "Calculate Working Days")
+            }
+
+            if (result != null) {
+                val res = result!!
+                Spacer(modifier = Modifier.height(6.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Net Working Days Hero Card
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp).fillMaxWidth()) {
+                            Text(
+                                text = if (useNepaliLanguage) "कुल सरकारी / कार्यालय कार्यदिन" else "Net Working Days",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = if (useNepaliNumerals) "${NepaliDate.toNepaliDigits(res.workingDays)} दिन" else "${res.workingDays} Days",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    // Breakdown Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Card(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp)) {
+                                Text(if (useNepaliLanguage) "कुल दिन" else "Total Days", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(
+                                    text = if (useNepaliNumerals) NepaliDate.toNepaliDigits(res.totalCalendarDays) else res.totalCalendarDays.toString(),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        Card(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = CardDefaults.cardColors(containerColor = com.example.ui.theme.HolidayRed.copy(alpha = 0.12f))
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp)) {
+                                Text(if (useNepaliLanguage) "शनि/आइत बिदा" else "Weekend Days", fontSize = 11.sp, color = com.example.ui.theme.HolidayRed)
+                                Text(
+                                    text = if (useNepaliNumerals) NepaliDate.toNepaliDigits(res.weekendDays) else res.weekendDays.toString(),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = com.example.ui.theme.HolidayRed
+                                )
+                            }
+                        }
+
+                        Card(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f))
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp)) {
+                                Text(if (useNepaliLanguage) "चाडपर्व बिदा" else "Holidays", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                                Text(
+                                    text = if (useNepaliNumerals) NepaliDate.toNepaliDigits(res.publicHolidays) else res.publicHolidays.toString(),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

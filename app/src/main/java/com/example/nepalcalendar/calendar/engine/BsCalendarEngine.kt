@@ -258,4 +258,84 @@ object BsCalendarEngine {
             nextBirthdayInDays = daysUntilNextBday
         )
     }
+
+    data class WorkingDaysResult(
+        val totalCalendarDays: Long,
+        val workingDays: Long,
+        val weekendDays: Long, // Saturdays and Sundays
+        val publicHolidays: Long
+    )
+
+    fun getDayOfYear(date: NepaliDate): Int {
+        val yearOffset = date.year - MIN_BS_YEAR
+        val monthArray = BsCalendarData.MONTH_DAYS[yearOffset]
+        var doy = 0
+        for (m in 1 until date.month) {
+            doy += monthArray[m - 1]
+        }
+        doy += date.day
+        return doy
+    }
+
+    fun parseBsDate(input: String): NepaliDate? {
+        val cleaned = input.trim()
+            .replace('/', '-')
+            .replace('.', '-')
+            .replace(' ', '-')
+            .replace('०', '0').replace('१', '1').replace('२', '2').replace('३', '3').replace('४', '4')
+            .replace('५', '5').replace('६', '6').replace('७', '7').replace('८', '8').replace('९', '9')
+        val parts = cleaned.split('-').filter { it.isNotBlank() }
+        if (parts.size != 3) return null
+        val y = parts[0].toIntOrNull() ?: return null
+        val m = parts[1].toIntOrNull() ?: return null
+        val d = parts[2].toIntOrNull() ?: return null
+        return if (isValidBsDate(y, m, d)) NepaliDate(y, m, d) else null
+    }
+
+    fun parseAdDate(input: String): LocalDate? {
+        val cleaned = input.trim().replace('/', '-').replace('.', '-').replace(' ', '-')
+        val parts = cleaned.split('-').filter { it.isNotBlank() }
+        if (parts.size != 3) return null
+        return runCatching {
+            if (parts[0].length == 4) {
+                LocalDate.of(parts[0].toInt(), parts[1].toInt(), parts[2].toInt())
+            } else if (parts[2].length == 4) {
+                LocalDate.of(parts[2].toInt(), parts[1].toInt(), parts[0].toInt())
+            } else null
+        }.getOrNull()
+    }
+
+    fun calculateWorkingDays(
+        startDate: NepaliDate,
+        endDate: NepaliDate,
+        publicHolidaysSet: Set<Pair<Int, Int>> = emptySet()
+    ): WorkingDaysResult {
+        val (start, end) = if (startDate <= endDate) Pair(startDate, endDate) else Pair(endDate, startDate)
+        val totalDays = daysBetween(start, end) + 1
+        var weekendDays = 0L
+        var holidays = 0L
+        var working = 0L
+
+        var current = start
+        while (current <= end) {
+            val isWeekend = current.isWeekendHoliday
+            val isHoliday = publicHolidaysSet.contains(Pair(current.month, current.day))
+            if (isWeekend) {
+                weekendDays++
+            } else if (isHoliday) {
+                holidays++
+            } else {
+                working++
+            }
+            if (current == end) break
+            current = current.plusDays(1)
+        }
+
+        return WorkingDaysResult(
+            totalCalendarDays = totalDays,
+            workingDays = working,
+            weekendDays = weekendDays,
+            publicHolidays = holidays
+        )
+    }
 }

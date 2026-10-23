@@ -70,8 +70,9 @@ fun DateDetailCard(
         date.formatDisplay(useNepaliLanguage, useNepaliNumerals)
     }
 
-    val hasHoliday = remember(festivals, date) {
-        date.isSaturday || festivals.any { it.isPublicHoliday }
+    val isWeekendHoliday = remember(date) { date.isWeekendHoliday }
+    val hasHoliday = remember(festivals, isWeekendHoliday) {
+        isWeekendHoliday || festivals.any { it.isPublicHoliday }
     }
 
     Card(
@@ -130,13 +131,18 @@ fun DateDetailCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (date.isSaturday) {
+                    if (isWeekendHoliday) {
                         Surface(
                             shape = RoundedCornerShape(8.dp),
                             color = HolidayRed.copy(alpha = 0.12f)
                         ) {
+                            val holidayLabel = if (date.isSaturday) {
+                                if (useNepaliLanguage) "शनिबार (साप्ताहिक बिदा)" else "Saturday (Weekly Holiday)"
+                            } else {
+                                if (useNepaliLanguage) "आइतबार (साप्ताहिक बिदा)" else "Sunday (Weekly Holiday)"
+                            }
                             Text(
-                                text = if (useNepaliLanguage) "शनिबार (साप्ताहिक बिदा)" else "Saturday (Weekly Holiday)",
+                                text = holidayLabel,
                                 color = HolidayRed,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,

@@ -31,7 +31,11 @@
     <string name="calc_countdown">Days Remaining</string>
     <string name="calc_age">Age Calculator</string>
     <string name="calc_add_subtract">Add / Subtract Days</string>
+    <string name="calc_working_days">Working Days</string>
     <string name="calculate">Calculate</string>
+    <string name="date_range_converter">Date Range Converter</string>
+    <string name="single_converter">Single Date</string>
+    <string name="range_converter">Date Range</string>
 
     <string name="festivals_and_holidays">Festivals &amp; Holidays</string>
     <string name="public_holidays_only">Public Holidays</string>
@@ -52,7 +56,7 @@
     <string name="first_day_of_week">First Day of Week</string>
     <string name="sunday">Sunday (आइतबार)</string>
     <string name="monday">Monday (सोमबार)</string>
-    <string name="highlight_saturday">Highlight Saturday as Holiday</string>
+    <string name="highlight_saturday">Highlight Saturday &amp; Sunday (Weekend Holidays)</string>
     <string name="show_festivals">Show Festival Indicators</string>
     <string name="about_calendar">About Bikram Sambat Engine</string>
     <string name="supported_range_desc">Accurate 1975 BS – 2100 BS (126 years offline)</string>
