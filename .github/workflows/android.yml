@@ -1,34 +1,76 @@
 name: Android CI
 
-on:
-  push:
-    branches: ["main"]
-  workflow_dispatch:
+'on':
+push:
+branches:
+- main
+pull_request:
+workflow_dispatch:
+
+permissions:
+contents: read
+
+concurrency:
+group: android-ci-${{ github.ref }}
+cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+build:
+name: Build Nepal Calendar Pro
+runs-on: ubuntu-latest
+timeout-minutes: 30
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
+  - name: Set up Java 17
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: '17'
 
-      - name: Install Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "9.3.1"
+  - name: Generate debug keystore
+    shell: bash
+    run: |
+      if [ ! -f debug.keystore ]; then
+        keytool -genkeypair \
+          -v \
+          -keystore debug.keystore \
+          -storepass android \
+          -alias androiddebugkey \
+          -keypass android \
+          -keyalg RSA \
+          -keysize 2048 \
+          -validity 10000 \
+          -dname "CN=Android Debug,O=Android,C=US"
+      fi
 
-      - name: Build APK
-        run: gradle assembleDebug --stacktrace
+      test -f debug.keystore
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: calendar-debug
-          path: app/build/outputs/apk/debug/*.apk
+  - name: Set up Gradle
+    uses: gradle/actions/setup-gradle@v4
+    with:
+      gradle-version: '9.3.1'
+
+  - name: Build debug APK
+    run: gradle assembleDebug --stacktrace
+
+  - name: Run unit tests
+    run: gradle :app:testDebugUnitTest
+
+  - name: Upload APK
+    if: success()
+    uses: actions/upload-artifact@v4
+    with:
+      name: Nepal-Calendar-Pro-APK
+      path: app/build/outputs/apk/debug/*.apk
+      if-no-files-found: error
+      retention-days: 14
+
+  - name: Build summary
+    if: success()
+    run: |
+      echo "## Nepal Calendar Pro" >> "$GITHUB_STEP_SUMMARY"
+      echo "Build and unit tests completed successfully." >> "$GITHUB_STEP_SUMMARY"
+      echo "Download the APK from the Artifacts section." >> "$GITHUB_STEP_SUMMARY"
