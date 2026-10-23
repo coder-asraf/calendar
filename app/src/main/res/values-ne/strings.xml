@@ -1,0 +1,64 @@
+<resources>
+    <string name="app_name">नेपाल क्यालेन्डर प्रो</string>
+    <string name="nav_calendar">क्यालेन्डर</string>
+    <string name="nav_converter">रूपान्तरण</string>
+    <string name="nav_festivals">चाडपर्व</string>
+    <string name="nav_events">कार्यक्रम</string>
+    <string name="nav_calculator">औजार</string>
+    <string name="nav_settings">सेटिङ</string>
+
+    <string name="today">आज</string>
+    <string name="search">खोज्नुहोस्</string>
+    <string name="today_date">आजको मिति</string>
+    <string name="gregorian_date">ई.सं. (अंग्रेजी)</string>
+    <string name="nepali_date">वि.सं. (नेपाली)</string>
+    <string name="events_and_festivals">चाडपर्व तथा कार्यक्रम</string>
+    <string name="no_events_on_date">यस मितिमा कुनै चाडपर्व वा कार्यक्रम छैन</string>
+    <string name="add_event">कार्यक्रम थप्नुहोस्</string>
+
+    <string name="date_converter">मिति रूपान्तरण</string>
+    <string name="bs_to_ad">वि.सं. बाट ई.सं.</string>
+    <string name="ad_to_bs">ई.सं. बाट वि.सं.</string>
+    <string name="convert">रूपान्तरण गर्नुहोस्</string>
+    <string name="swap">दिशा बदल्नुहोस्</string>
+    <string name="copy">प्रतिलिपि गर्नुहोस्</string>
+    <string name="share">सेयर गर्नुहोस्</string>
+    <string name="copied">क्लिपबोर्डमा प्रतिलिपि गरियो</string>
+    <string name="recent_conversions">हालैका रूपान्तरणहरू</string>
+
+    <string name="date_calculator">मिति क्यालकुलेटर</string>
+    <string name="calc_days_between">मितिहरू बीचको अन्तर</string>
+    <string name="calc_countdown">बाँकी दिनहरू</string>
+    <string name="calc_age">उमेर क्यालकुलेटर</string>
+    <string name="calc_add_subtract">दिन थप / घटाउ</string>
+    <string name="calculate">गणना गर्नुहोस्</string>
+
+    <string name="festivals_and_holidays">चाडपर्व तथा बिदाहरू</string>
+    <string name="public_holidays_only">सार्वजनिक बिदा मात्र</string>
+    <string name="all_festivals">सबै चाडपर्व</string>
+    <string name="upcoming_events">आगामी चाडपर्वहरू</string>
+
+    <string name="settings">सेटिङहरू</string>
+    <string name="language">भाषा</string>
+    <string name="nepali">नेपाली</string>
+    <string name="english">English</string>
+    <string name="theme">विषयवस्तु (Theme)</string>
+    <string name="system_default">प्रणाली अनुसार</string>
+    <string name="light_theme">उज्यालो (Light)</string>
+    <string name="dark_theme">अँध्यारो (Dark)</string>
+    <string name="numeral_system">अङ्क प्रणाली</string>
+    <string name="nepali_numerals">नेपाली (१, २, ३)</string>
+    <string name="arabic_numerals">अंग्रेजी (1, 2, 3)</string>
+    <string name="first_day_of_week">हप्ताको पहिलो दिन</string>
+    <string name="sunday">आइतबार</string>
+    <string name="monday">सोमबार</string>
+    <string name="highlight_saturday">शनिबार बिदा रङ देखाउने</string>
+    <string name="show_festivals">क्यालेन्डरमा चाडपर्व चिन्ह देखाउने</string>
+    <string name="about_calendar">विक्रम संवत् इन्जिन बारे</string>
+    <string name="supported_range_desc">सटीक दायरा: १९७५ - २१०० वि.सं. (१२६ वर्ष अफलाइन)</string>
+    <string name="clear_events">सबै व्यक्तिगत कार्यक्रम मेटाउनुहोस्</string>
+    <string name="clear_events_confirm">के तपाईं सबै व्यक्तिगत कार्यक्रमहरू मेटाउन चाहनुहुन्छ? यो पूर्ववत हुन सक्दैन।</string>
+    <string name="cancel">रद्द</string>
+    <string name="delete">मेटाउनुहोस्</string>
+    <string name="save">सुरक्षित गर्नुहोस्</string>
+</resources>

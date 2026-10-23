@@ -1,0 +1,6 @@
+{
+  "name": "Nepal Calendar Pro",
+  "description": "Advanced native Android Bikram Sambat calendar with accurate date conversion, festivals, holidays, and event management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
